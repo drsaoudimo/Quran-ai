@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "Bookmark": {
+      "title": "Bookmark",
+      "description": "A bookmarked page by a user",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The user ID"
+        },
+        "page": {
+          "type": "number",
+          "description": "The page number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the bookmark was created"
+        }
+      },
+      "required": ["userId", "page", "createdAt"]
+    },
+    "ReadingProgress": {
+      "title": "ReadingProgress",
+      "description": "The user's reading progress",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The user ID"
+        },
+        "lastPage": {
+          "type": "number",
+          "description": "The last page read"
+        },
+        "khatmaCount": {
+          "type": "number",
+          "description": "Number of times the user finished reading the Quran"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the progress was last updated"
+        }
+      },
+      "required": ["userId", "lastPage", "khatmaCount", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "bookmarks/{bookmarkId}": {
+      "schema": "Bookmark",
+      "description": "User bookmarks"
+    },
+    "reading_progress/{progressId}": {
+      "schema": "ReadingProgress",
+      "description": "User reading progress"
+    }
+  }
+}

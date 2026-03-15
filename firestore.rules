@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    function hasOnlyAllowedFields(allowedFields) {
+      return request.resource.data.keys().hasOnly(allowedFields);
+    }
+    function isValidBookmark() {
+      let data = request.resource.data;
+      return hasOnlyAllowedFields(['userId', 'page', 'createdAt']) &&
+             data.userId is string &&
+             data.page is number && data.page >= 1 && data.page <= 604 &&
+             data.createdAt is string;
+    }
+    function isValidReadingProgress() {
+      let data = request.resource.data;
+      return hasOnlyAllowedFields(['userId', 'lastPage', 'khatmaCount', 'updatedAt']) &&
+             data.userId is string &&
+             data.lastPage is number && data.lastPage >= 1 && data.lastPage <= 604 &&
+             data.khatmaCount is number && data.khatmaCount >= 0 &&
+             data.updatedAt is string;
+    }
+
+    match /bookmarks/{bookmarkId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && isValidBookmark();
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /reading_progress/{progressId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && isValidReadingProgress();
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid && isValidReadingProgress();
+    }
+  }
+}
